@@ -5,8 +5,8 @@ from familylineage.apps.persons.models import Person
 
 
 class ParentChild(models.Model):
-    parent = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='parent')
-    child = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='child')
+    parent = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='children_relations')
+    child = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='parents_relations')
 
 
 class Marriage(models.Model):

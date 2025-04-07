@@ -19,3 +19,8 @@ def index(request: HttpRequest) -> HttpResponse:
         'is_paginated': page_obj.has_other_pages(),
     }
     return render(request, 'persons/index.html', context)
+
+
+def details(request: HttpRequest, person_id: int) -> HttpResponse:
+    person = Person.objects.get(pk=person_id)
+    return render(request, 'persons/details.html', {'person': person})

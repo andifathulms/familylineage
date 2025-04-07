@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.query import QuerySet
 
 from datetime import date
 from dateutil.relativedelta import relativedelta  # type: ignore[import-untyped]
@@ -65,3 +66,52 @@ class Person(models.Model):
 
         except Exception as e:
             return f"Age calculation error :{e}"
+
+    @property
+    def parents(self) -> QuerySet:
+        """Optimized query to get all parents"""
+        from familylineage.apps.relationships.models import ParentChild
+
+        return Person.objects.filter(
+            id__in=ParentChild.objects.filter(child_id=self.id).values('parent_id')
+        ).order_by('gender')
+
+    @property
+    def children(self) -> QuerySet:
+        """Optimized query to get all children"""
+        from familylineage.apps.relationships.models import ParentChild
+
+        return Person.objects.filter(
+            id__in=ParentChild.objects.filter(parent_id=self.id).values('child_id')
+        ).order_by('birth_date', 'name')
+
+    @property
+    def spouses(self) -> QuerySet:
+        """
+        Returns all spouses of this person, automatically detecting
+        whether to look for wife (if male) or husband (if female)
+        """
+        from familylineage.apps.relationships.models import Marriage
+
+        if self.gender == self.GENDER.male:
+            return Person.objects.filter(
+                id__in=Marriage.objects.filter(husband=self).values('wife')
+            )
+        elif self.gender == self.GENDER.female:
+            return Person.objects.filter(
+                id__in=Marriage.objects.filter(wife=self).values('husband')
+            )
+        return Person.objects.none()  # For other/unspecified genders
+
+    @property
+    def marriages(self) -> QuerySet:
+        """
+        Returns all Marriage relationships for this person
+        """
+        from familylineage.apps.relationships.models import Marriage
+
+        if self.gender == self.GENDER.male:
+            return Marriage.objects.filter(husband=self)
+        elif self.gender == self.GENDER.female:
+            return Marriage.objects.filter(wife=self)
+        return Marriage.objects.none()
