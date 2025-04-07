@@ -59,4 +59,4 @@ class Person(models.Model):
             return ' '.join(age_parts)
 
         except Exception as e:
-            return "Age calculation error"
+            return f"Age calculation error :{e}"
