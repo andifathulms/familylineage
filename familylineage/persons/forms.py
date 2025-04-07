@@ -3,16 +3,9 @@ from django import forms
 from familylineage.apps.persons.models import Person
 from familylineage.apps.relationships.models import Marriage, ParentChild
 
-from typing import List, Any
-
 
 class AddParentForm(forms.Form):
-    parents = forms.ModelChoiceField(queryset=None)
-
-    def __init__(self, *args: List, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.fields['parents'].queryset = Marriage.objects.all()
-        self.fields['parents'].label_from_instance = lambda obj: f"{obj.husband.name} & {obj.wife.name}"
+    parents = forms.ModelChoiceField(queryset=Marriage.objects.all())
 
     def save(self, person: Person) -> None:
         parents = self.cleaned_data['parents']
