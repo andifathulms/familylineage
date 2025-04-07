@@ -65,3 +65,49 @@ class Person(models.Model):
 
         except Exception as e:
             return f"Age calculation error :{e}"
+
+    @property
+    def parents(self):
+        """Optimized query to get all parents"""
+        from familylineage.apps.relationships.models import ParentChild
+
+        return Person.objects.filter(
+            id__in=ParentChild.objects.filter(child_id=self.id).values('parent_id')
+        ).order_by('gender')
+
+    @property
+    def children(self):
+        """Optimized query to get all children"""
+        from familylineage.apps.relationships.models import ParentChild
+
+        return Person.objects.filter(
+            id__in=ParentChild.objects.filter(parent_id=self.id).values('child_id')
+        ).order_by('birth_date', 'name')
+
+    @property
+    def spouses(self):
+        """
+        Returns all spouses of this person, automatically detecting
+        whether to look for wife (if male) or husband (if female)
+        """
+        if self.gender == self.GENDER.male:
+            return Person.objects.filter(
+                id__in=Marriage.objects.filter(husband=self).values('wife')
+            )
+        elif self.gender == self.GENDER.female:
+            return Person.objects.filter(
+                id__in=Marriage.objects.filter(wife=self).values('husband')
+            )
+        return Person.objects.none()  # For other/unspecified genders
+
+    @property
+    def marriages(self):
+        """
+        Returns all Marriage relationships for this person
+        """
+        from familylineage.apps.relationships.models import Marriage
+        if self.gender == self.GENDER.male:
+            return Marriage.objects.filter(husband=self)
+        elif self.gender == self.GENDER.female:
+            return Marriage.objects.filter(wife=self)
+        return Marriage.objects.none()

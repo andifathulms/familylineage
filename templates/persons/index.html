@@ -38,7 +38,9 @@
                     {% for person in persons %}
                     <tr class="hover:bg-blue-50 transition-colors duration-200">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-blue-600">{{ person.name }}</div>
+                            <a href="{% url 'persons:details' person.id %}">
+                                <div class="text-sm font-medium text-blue-600">{{ person.name }}</div>
+                            </a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">{{ person.get_gender_display }}</div>
