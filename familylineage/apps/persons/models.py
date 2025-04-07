@@ -1,7 +1,7 @@
 from django.db import models
 
 from datetime import date
-from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta  # type: ignore[import-untyped]
 
 from model_utils import Choices
 
