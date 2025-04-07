@@ -55,7 +55,7 @@
             <!-- Desktop Menu -->
             <div class="hidden md:flex space-x-6">
                 <a href="{% url 'persons:index' %}" class="text-white hover:text-indigo-200 transition-colors">People</a>
-                <a href="#" class="text-white hover:text-indigo-200 transition-colors">Families</a>
+                <a href="{% url 'marriages:index' %}" class="text-white hover:text-indigo-200 transition-colors">Families</a>
                 <a href="#" class="text-white hover:text-indigo-200 transition-colors">Tree View</a>
                 <a href="#" class="text-white hover:text-indigo-200 transition-colors">About</a>
             </div>
@@ -83,8 +83,8 @@
         
         <!-- Mobile menu -->
         <div class="md:hidden hidden bg-indigo-700 px-4 py-2" id="mobile-menu">
-            <a href="#" class="block py-2 text-white hover:text-indigo-200 transition-colors">People</a>
-            <a href="#" class="block py-2 text-white hover:text-indigo-200 transition-colors">Families</a>
+            <a href="{% url 'persons:index' %}" class="block py-2 text-white hover:text-indigo-200 transition-colors">People</a>
+            <a href="{% url 'marriages:index' %}" class="block py-2 text-white hover:text-indigo-200 transition-colors">Families</a>
             <a href="#" class="block py-2 text-white hover:text-indigo-200 transition-colors">Tree View</a>
             <a href="#" class="block py-2 text-white hover:text-indigo-200 transition-colors">About</a>
         </div>

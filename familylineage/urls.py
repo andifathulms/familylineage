@@ -26,6 +26,7 @@ urlpatterns = [
     path('', index),
     path('admin/', admin.site.urls),
     path('persons/', include('familylineage.persons.urls')),
+    path('marriages/', include('familylineage.marriages.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
