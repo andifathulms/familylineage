@@ -4,6 +4,9 @@ from datetime import date
 from dateutil.relativedelta import relativedelta  # type: ignore[import-untyped]
 
 from model_utils import Choices
+from thumbnails.fields import ImageField
+
+from familylineage.core.utils import FilenameGenerator
 
 
 class Person(models.Model):
@@ -21,6 +24,8 @@ class Person(models.Model):
     death_date = models.DateField(blank=True, null=True)
     death_place = models.CharField(max_length=255, blank=True, null=True)
     is_living = models.BooleanField(default=True)
+
+    photo = ImageField(upload_to=FilenameGenerator(prefix='persons'), blank=True, null=True)
 
     def __str__(self) -> str:
         return self.name
