@@ -10,10 +10,13 @@ class Person(models.Model):
         (1, 'male', 'Male'),
         (2, 'female', 'Female')
     )
-    source = models.PositiveSmallIntegerField(choices=GENDER)
+    gender = models.PositiveSmallIntegerField(choices=GENDER)
 
     birth_date = models.DateField(blank=True, null=True)
     birth_place = models.CharField(max_length=255, blank=True, null=True)
     death_date = models.DateField(blank=True, null=True)
     death_place = models.CharField(max_length=255, blank=True, null=True)
     is_living = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name

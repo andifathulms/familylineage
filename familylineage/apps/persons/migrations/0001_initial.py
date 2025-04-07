@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                                            verbose_name='ID')),
                 ('name', models.CharField(max_length=255)),
                 ('nickname', models.CharField(blank=True, max_length=255, null=True)),
-                ('source', models.PositiveSmallIntegerField(choices=[(1, 'Male'), (2, 'Female')])),
+                ('gender', models.PositiveSmallIntegerField(choices=[(1, 'Male'), (2, 'Female')])),
                 ('birth_date', models.DateField(blank=True, null=True)),
                 ('birth_place', models.CharField(blank=True, max_length=255, null=True)),
                 ('death_date', models.DateField(blank=True, null=True)),
