@@ -22,10 +22,10 @@ class Person(models.Model):
     death_place = models.CharField(max_length=255, blank=True, null=True)
     is_living = models.BooleanField(default=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def display_age(self):
+    def display_age(self) -> str:
         """
         Returns age as a string in format "X years Y months" based on birth_date.
         Handles living and deceased persons appropriately.
