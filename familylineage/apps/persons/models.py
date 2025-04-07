@@ -115,3 +115,22 @@ class Person(models.Model):
         elif self.gender == self.GENDER.female:
             return Marriage.objects.filter(wife=self)
         return Marriage.objects.none()
+
+    @property
+    def siblings(self) -> QuerySet:
+        """
+        Returns a queryset of all siblings (people who share at least one parent)
+        Excludes the current person from the results
+        """
+        from familylineage.apps.relationships.models import ParentChild
+
+        parent_ids = ParentChild.objects.filter(child=self).values_list('parent', flat=True)
+
+        if not parent_ids:
+            return Person.objects.none()
+
+        return Person.objects.filter(
+            id__in=ParentChild.objects.filter(
+                parent__in=parent_ids
+            ).exclude(child=self).values_list('child', flat=True)
+        ).distinct()
