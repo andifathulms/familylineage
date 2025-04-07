@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.query import QuerySet
 
 from datetime import date
 from dateutil.relativedelta import relativedelta  # type: ignore[import-untyped]
