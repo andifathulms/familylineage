@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block title %}{{ title|default:"Form" }}{% endblock %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-dialog {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .button-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">{{ title|default:"Form" }}</h1>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-dialog">
+            <div class="spinner"></div>
+            <p class="text-gray-700">Processing...</p>
+        </div>
+    </div>
+
+    {% if form.non_field_errors %}
+        <div class="mb-4 p-4 bg-red-50 text-red-700 rounded border border-red-200">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" {% if novalidate %}novalidate{% endif %} id="formData" class="space-y-4">
+        {% csrf_token %}
+        
+        {% for field in form.hidden_fields %}
+            {{ field }}
+            {% if field.errors %}
+                <div class="text-red-500 text-sm">{{ field.errors }}</div>
+            {% endif %}
+        {% endfor %}
+
+        {% for field in form.visible_fields %}
+            <div class="space-y-2">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    {{ field.label }}
+                    {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                </label>
+                
+                {{ field }}
+                
+                {% if field.help_text %}
+                    <p class="text-xs text-gray-500">{{ field.help_text }}</p>
+                {% endif %}
+                
+                {% if field.errors %}
+                    <div class="text-red-500 text-sm">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="pt-4">
+            <button type="submit" id="submitButton" 
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Save
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Initialize date pickers
+        document.querySelectorAll('[data-datepicker]').forEach(function(element) {
+            flatpickr(element, {
+                dateFormat: "Y-m-d",
+                allowInput: true
+            });
+        });
+
+        // Form submission handling
+        const form = document.getElementById('formData');
+        const submitButton = document.getElementById('submitButton');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        let isSubmitting = false;
+
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return;
+                }
+
+                isSubmitting = true;
+                submitButton.classList.add('button-disabled');
+                submitButton.disabled = true;
+                loadingOverlay.style.display = 'flex';
+            });
+        }
+
+        // Handle browser back/forward to reset form state
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                isSubmitting = false;
+                if (submitButton) {
+                    submitButton.classList.remove('button-disabled');
+                    submitButton.disabled = false;
+                }
+                if (loadingOverlay) {
+                    loadingOverlay.style.display = 'none';
+                }
+            }
+        });
+    </script>
+{% endblock %}

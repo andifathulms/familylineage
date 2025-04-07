@@ -96,9 +96,15 @@
                 <a href="#" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
                     View Family Tree
                 </a>
+                {% if person.parents %}
                 <a href="#" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition">
-                    Add Relative
+                    Edit Parents
                 </a>
+                {% else %}
+                <a href="{% url 'persons:add_parents' person.id %}" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition">
+                  Add Parents
+              </a>
+                {% endif %}
             </div>
         </div>
     </div>
