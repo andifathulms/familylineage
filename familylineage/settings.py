@@ -44,15 +44,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< Updated upstream
-=======
 
     'tailwind',
     'theme',
 
     'familylineage.apps.persons',
     'familylineage.apps.relationships',
->>>>>>> Stashed changes
 ]
 
 MIDDLEWARE = [
