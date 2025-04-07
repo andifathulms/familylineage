@@ -15,11 +15,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='parentchild',
             name='child',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='parents_relations', to='persons.person'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='parents_relations', to='persons.person'),
         ),
         migrations.AlterField(
             model_name='parentchild',
             name='parent',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='children_relations', to='persons.person'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='children_relations', to='persons.person'),
         ),
     ]
