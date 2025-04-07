@@ -67,7 +67,7 @@ class Person(models.Model):
             return f"Age calculation error :{e}"
 
     @property
-    def parents(self):
+    def parents(self) -> QuerySet:
         """Optimized query to get all parents"""
         from familylineage.apps.relationships.models import ParentChild
 
@@ -76,7 +76,7 @@ class Person(models.Model):
         ).order_by('gender')
 
     @property
-    def children(self):
+    def children(self) -> QuerySet:
         """Optimized query to get all children"""
         from familylineage.apps.relationships.models import ParentChild
 
@@ -85,7 +85,7 @@ class Person(models.Model):
         ).order_by('birth_date', 'name')
 
     @property
-    def spouses(self):
+    def spouses(self) -> QuerySet:
         """
         Returns all spouses of this person, automatically detecting
         whether to look for wife (if male) or husband (if female)
@@ -101,7 +101,7 @@ class Person(models.Model):
         return Person.objects.none()  # For other/unspecified genders
 
     @property
-    def marriages(self):
+    def marriages(self) -> QuerySet:
         """
         Returns all Marriage relationships for this person
         """
