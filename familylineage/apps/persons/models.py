@@ -91,6 +91,8 @@ class Person(models.Model):
         Returns all spouses of this person, automatically detecting
         whether to look for wife (if male) or husband (if female)
         """
+        from familylineage.apps.relationships.models import Marriage
+
         if self.gender == self.GENDER.male:
             return Person.objects.filter(
                 id__in=Marriage.objects.filter(husband=self).values('wife')
@@ -107,6 +109,7 @@ class Person(models.Model):
         Returns all Marriage relationships for this person
         """
         from familylineage.apps.relationships.models import Marriage
+
         if self.gender == self.GENDER.male:
             return Marriage.objects.filter(husband=self)
         elif self.gender == self.GENDER.female:
