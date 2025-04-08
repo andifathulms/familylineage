@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ person.name }} Family Tree{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">{{ person.name }} Family Tree</h1>
+    
+    <div class="flex gap-4 mb-6">
+        <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors" onclick="zoomIn()">
+            <span class="font-medium">Zoom In</span> (+)
+        </button>
+        <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors" onclick="zoomOut()">
+            <span class="font-medium">Zoom Out</span> (-)
+        </button>
+        <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors" onclick="resetZoom()">
+            <span class="font-medium">Reset Zoom</span>
+        </button>
+    </div>
+    
+    <div id="treeContainer" class="w-full h-[80vh] overflow-auto bg-gray-50 border border-gray-200 rounded-lg p-5 shadow-sm">
+        <div id="familyTree" class="inline-block p-10 min-w-fit min-h-fit origin-center">
+            <!-- Generation 0 (Main Person & Spouse) -->
+            <div class="flex justify-center mb-16">
+                <div class="flex flex-row items-start">
+                    <!-- Main Person -->
+                    <div class="relative bg-white rounded-lg shadow-md p-4 w-52 h-64 text-center transition-transform hover:translate-y-[-5px] hover:shadow-lg
+                        {% if person.gender == 1 %}border-l-4 border-blue-500{% else %}border-l-4 border-pink-500{% endif %}">
+                        {% if person.photo %}
+                            <img src="{{ person.photo.url }}" alt="{{ person.name }}" 
+                                class="w-20 h-20 mx-auto rounded-full object-cover border-3 
+                                {% if person.gender == 1 %}border-blue-100{% else %}border-pink-100{% endif %} mb-3">
+                        {% else %}
+                            <div class="w-20 h-20 mx-auto rounded-full 
+                                {% if person.gender == 1 %}bg-blue-50{% else %}bg-pink-50{% endif %} 
+                                flex items-center justify-center mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 
+                                    {% if person.gender == 1 %}text-blue-400{% else %}text-pink-400{% endif %}" 
+                                    viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                                </svg>
+                            </div>
+                        {% endif %}
+                        <div class="font-semibold text-gray-800 mb-1 overflow-hidden text-ellipsis">{{ person.name }}</div>
+                        <div class="text-sm text-gray-500">
+                            {% if person.birth_date %}
+                                b. {{ person.birth_date|date:"Y" }}
+                            {% endif %}
+                            {% if person.death_date %}
+                                - d. {{ person.death_date|date:"Y" }}
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Connector to children -->
+                        {% if person.children %}
+                            <div class="absolute left-1/2 -ml-px w-px h-10 bg-gray-400 bottom-[-40px]"></div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Spouse if exists -->
+                    {% for marriage in person.marriages %}
+                        {% if person.gender == 1 %}
+                            {% with spouse=marriage.wife %}
+                                <!-- Horizontal connector between spouses -->
+                                <div class="relative w-8 h-10">
+                                    <div class="absolute top-32 left-0 w-8 h-px bg-gray-400"></div>
+                                </div>
+                                
+                                <div class="relative bg-white rounded-lg shadow-md p-4 w-52 h-64 text-center transition-transform hover:translate-y-[-5px] hover:shadow-lg
+                                    {% if spouse.gender == 1 %}border-l-4 border-blue-500{% else %}border-l-4 border-pink-500{% endif %}">
+                                    {% if spouse.photo %}
+                                        <img src="{{ spouse.photo.url }}" alt="{{ spouse.name }}" 
+                                            class="w-20 h-20 mx-auto rounded-full object-cover border-3 
+                                            {% if spouse.gender == 1 %}border-blue-100{% else %}border-pink-100{% endif %} mb-3">
+                                    {% else %}
+                                        <div class="w-20 h-20 mx-auto rounded-full 
+                                            {% if spouse.gender == 1 %}bg-blue-50{% else %}bg-pink-50{% endif %} 
+                                            flex items-center justify-center mb-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 
+                                                {% if spouse.gender == 1 %}text-blue-400{% else %}text-pink-400{% endif %}" 
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                                            </svg>
+                                        </div>
+                                    {% endif %}
+                                    <div class="font-semibold text-gray-800 mb-1 overflow-hidden text-ellipsis">{{ spouse.name }}</div>
+                                    <div class="text-sm text-gray-500">
+                                        {% if spouse.birth_date %}
+                                            b. {{ spouse.birth_date|date:"Y" }}
+                                        {% endif %}
+                                        {% if spouse.death_date %}
+                                            - d. {{ spouse.death_date|date:"Y" }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% else %}
+                            {% with spouse=marriage.husband %}
+                                <!-- Horizontal connector between spouses -->
+                                <div class="relative w-8 h-10">
+                                    <div class="absolute top-32 left-0 w-8 h-px bg-gray-400"></div>
+                                </div>
+                                
+                                <div class="relative bg-white rounded-lg shadow-md p-4 w-52 h-64 text-center transition-transform hover:translate-y-[-5px] hover:shadow-lg
+                                    {% if spouse.gender == 1 %}border-l-4 border-blue-500{% else %}border-l-4 border-pink-500{% endif %}">
+                                    {% if spouse.photo %}
+                                        <img src="{{ spouse.photo.url }}" alt="{{ spouse.name }}" 
+                                            class="w-20 h-20 mx-auto rounded-full object-cover border-3 
+                                            {% if spouse.gender == 1 %}border-blue-100{% else %}border-pink-100{% endif %} mb-3">
+                                    {% else %}
+                                        <div class="w-20 h-20 mx-auto rounded-full 
+                                            {% if spouse.gender == 1 %}bg-blue-50{% else %}bg-pink-50{% endif %} 
+                                            flex items-center justify-center mb-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 
+                                                {% if spouse.gender == 1 %}text-blue-400{% else %}text-pink-400{% endif %}" 
+                                                viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                                            </svg>
+                                        </div>
+                                    {% endif %}
+                                    <div class="font-semibold text-gray-800 mb-1 overflow-hidden text-ellipsis">{{ spouse.name }}</div>
+                                    <div class="text-sm text-gray-500">
+                                        {% if spouse.birth_date %}
+                                            b. {{ spouse.birth_date|date:"Y" }}
+                                        {% endif %}
+                                        {% if spouse.death_date %}
+                                            - d. {{ spouse.death_date|date:"Y" }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Generation 1 (Children) -->
+            {% if person.children %}
+            <div class="relative flex justify-center mb-16">
+                <!-- Main horizontal connector line for children -->
+                <div class="horizontal-connector absolute" id="childrenConnector">
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            setTimeout(function() {
+                                const childrenContainer = document.getElementById('childrenContainer');
+                                if (childrenContainer) {
+                                    const firstChild = childrenContainer.firstElementChild;
+                                    const lastChild = childrenContainer.lastElementChild;
+                                    if (firstChild && lastChild) {
+                                        const connector = document.getElementById('childrenConnector');
+                                        const firstLeft = firstChild.getBoundingClientRect().left;
+                                        const lastRight = lastChild.getBoundingClientRect().right;
+                                        const width = lastRight - firstLeft + 20; // Add padding
+                                        
+                                        connector.style.width = width + 'px';
+                                        connector.style.left = '50%';
+                                        connector.style.transform = 'translateX(-50%)';
+                                        connector.style.top = '0';
+                                        connector.style.height = '1px';
+                                        connector.style.backgroundColor = '#9CA3AF';
+                                    }
+                                }
+                            }, 100); // Short delay to ensure DOM is rendered
+                        });
+                    </script>
+                </div>
+
+                <div id="childrenContainer" class="flex gap-8 relative mt-5">
+                    {% for child in person.children %}
+                    <div class="flex flex-col items-center">
+                        <div class="flex flex-row items-start">
+                            <!-- Child Card with vertical connector above -->
+                            <div class="relative bg-white rounded-lg shadow-md p-4 w-52 h-64 text-center transition-transform hover:translate-y-[-5px] hover:shadow-lg
+                                {% if child.gender == 1 %}border-l-4 border-blue-500{% else %}border-l-4 border-pink-500{% endif %}">
+                                <div class="absolute left-1/2 -ml-px w-px h-5 bg-gray-400 top-[-20px]"></div>
+                                
+                                {% if child.photo %}
+                                    <img src="{{ child.photo.url }}" alt="{{ child.name }}" 
+                                        class="w-20 h-20 mx-auto rounded-full object-cover border-3 
+                                        {% if child.gender == 1 %}border-blue-100{% else %}border-pink-100{% endif %} mb-3">
+                                {% else %}
+                                    <div class="w-20 h-20 mx-auto rounded-full 
+                                        {% if child.gender == 1 %}bg-blue-50{% else %}bg-pink-50{% endif %} 
+                                        flex items-center justify-center mb-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 
+                                            {% if child.gender == 1 %}text-blue-400{% else %}text-pink-400{% endif %}" 
+                                            viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                                        </svg>
+                                    </div>
+                                {% endif %}
+                                <div class="font-semibold text-gray-800 mb-1 overflow-hidden text-ellipsis">{{ child.name }}</div>
+                                <div class="text-sm text-gray-500">
+                                    {% if child.birth_date %}
+                                        b. {{ child.birth_date|date:"Y" }}
+                                    {% endif %}
+                                    {% if child.death_date %}
+                                        - d. {{ child.death_date|date:"Y" }}
+                                    {% endif %}
+                                </div>
+                                {% if child.children %}
+                                    <div class="absolute left-1/2 -ml-px w-px h-10 bg-gray-400 bottom-[-40px]"></div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Child's Spouse if exists -->
+                            {% if child.marriages %}
+                                {% for marriage in child.marriages %}
+                                    {% if child.gender == 1 %}
+                                        {% with spouse=marriage.wife %}
+                                            <!-- Horizontal connector between child and spouse -->
+                                            <div class="relative w-8 h-10">
+                                                <div class="absolute top-32 left-0 w-8 h-px bg-gray-400"></div>
+                                            </div>
+                                            
+                                            <div class="relative bg-white rounded-lg shadow-md p-4 w-52 h-64 text-center transition-transform hover:translate-y-[-5px] hover:shadow-lg border-l-4 border-gray-300">
+                                                {% if spouse.photo %}
+                                                    <img src="{{ spouse.photo.url }}" alt="{{ spouse.name }}" 
+                                                        class="w-20 h-20 mx-auto rounded-full object-cover border-3 
+                                                        {% if spouse.gender == 1 %}border-blue-100{% else %}border-pink-100{% endif %} mb-3">
+                                                {% else %}
+                                                    <div class="w-20 h-20 mx-auto rounded-full bg-gray-50 flex items-center justify-center mb-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" 
+                                                            viewBox="0 0 24 24" fill="currentColor">
+                                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                                                        </svg>
+                                                    </div>
+                                                {% endif %}
+                                                <div class="font-semibold text-gray-800 mb-1 overflow-hidden text-ellipsis">{{ spouse.name }}</div>
+                                                <div class="text-sm text-gray-500">
+                                                    {% if spouse.birth_date %}
+                                                        b. {{ spouse.birth_date|date:"Y" }}
+                                                    {% endif %}
+                                                    {% if spouse.death_date %}
+                                                        - d. {{ spouse.death_date|date:"Y" }}
+                                                    {% endif %}
+                                                </div>
+                                                <div class="mt-1 text-xs text-gray-400">(In-law)</div>
+                                            </div>
+                                        {% endwith %}
+                                    {% else %}
+                                        {% with spouse=marriage.husband %}
+                                            <!-- Horizontal connector between child and spouse -->
+                                            <div class="relative w-8 h-10">
+                                                <div class="absolute top-32 left-0 w-8 h-px bg-gray-400"></div>
+                                            </div>
+                                            
+                                            <div class="relative bg-white rounded-lg shadow-md p-4 w-52 h-64 text-center transition-transform hover:translate-y-[-5px] hover:shadow-lg border-l-4 border-gray-300">
+                                                {% if spouse.photo %}
+                                                    <img src="{{ spouse.photo.url }}" alt="{{ spouse.name }}" 
+                                                        class="w-20 h-20 mx-auto rounded-full object-cover border-3 
+                                                        {% if spouse.gender == 1 %}border-blue-100{% else %}border-pink-100{% endif %} mb-3">
+                                                {% else %}
+                                                    <div class="w-20 h-20 mx-auto rounded-full bg-gray-50 flex items-center justify-center mb-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" 
+                                                            viewBox="0 0 24 24" fill="currentColor">
+                                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                                                        </svg>
+                                                    </div>
+                                                {% endif %}
+                                                <div class="font-semibold text-gray-800 mb-1 overflow-hidden text-ellipsis">{{ spouse.name }}</div>
+                                                <div class="text-sm text-gray-500">
+                                                    {% if spouse.birth_date %}
+                                                        b. {{ spouse.birth_date|date:"Y" }}
+                                                    {% endif %}
+                                                    {% if spouse.death_date %}
+                                                        - d. {{ spouse.death_date|date:"Y" }}
+                                                    {% endif %}
+                                                </div>
+                                                <div class="mt-1 text-xs text-gray-400">(In-law)</div>
+                                            </div>
+                                        {% endwith %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Generation 2 (Grandchildren) for this specific child -->
+                        {% if child.children %}
+                        <div class="relative w-full mt-10">
+                            <!-- Grandchild horizontal connector -->
+                            <div class="grandchild-connector-{{ forloop.counter }} absolute" id="grandchildConnector{{ forloop.counter }}">
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        setTimeout(function() {
+                                            const grandchildrenContainer = document.getElementById('grandchildren{{ forloop.counter }}');
+                                            if (grandchildrenContainer) {
+                                                const firstChild = grandchildrenContainer.firstElementChild;
+                                                const lastChild = grandchildrenContainer.lastElementChild;
+                                                if (firstChild && lastChild) {
+                                                    const connector = document.getElementById('grandchildConnector{{ forloop.counter }}');
+                                                    const firstLeft = firstChild.getBoundingClientRect().left;
+                                                    const lastRight = lastChild.getBoundingClientRect().right;
+                                                    const width = lastRight - firstLeft;
+                                                    
+                                                    connector.style.width = width + 'px';
+                                                    connector.style.left = '50%';
+                                                    connector.style.transform = 'translateX(-50%)';
+                                                    connector.style.top = '0';
+                                                    connector.style.height = '1px';
+                                                    connector.style.backgroundColor = '#9CA3AF';
+                                                }
+                                            }
+                                        }, 100); // Short delay to ensure DOM is rendered
+                                    });
+                                </script>
+                            </div>
+                            
+                            <div id="grandchildren{{ forloop.counter }}" class="flex justify-center gap-4 mt-5">
+                                {% for grandchild in child.children %}
+                                <div class="relative w-52 text-center">
+                                    <div class="bg-white rounded-lg shadow-md p-4 h-64 transition-transform hover:translate-y-[-5px] hover:shadow-lg
+                                        {% if grandchild.gender == 1 %}border-l-4 border-blue-500{% else %}border-l-4 border-pink-500{% endif %}">
+                                        {% if grandchild.photo %}
+                                            <img src="{{ grandchild.photo.url }}" alt="{{ grandchild.name }}" 
+                                                class="w-20 h-20 mx-auto rounded-full object-cover border-3 
+                                                {% if grandchild.gender == 1 %}border-blue-100{% else %}border-pink-100{% endif %} mb-3">
+                                        {% else %}
+                                            <div class="w-20 h-20 mx-auto rounded-full 
+                                                {% if grandchild.gender == 1 %}bg-blue-50{% else %}bg-pink-50{% endif %} 
+                                                flex items-center justify-center mb-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 
+                                                    {% if grandchild.gender == 1 %}text-blue-400{% else %}text-pink-400{% endif %}" 
+                                                    viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                                                </svg>
+                                            </div>
+                                        {% endif %}
+                                        <div class="font-semibold text-gray-800 mb-1 overflow-hidden text-ellipsis">{{ grandchild.name }}</div>
+                                        <div class="text-sm text-gray-500">
+                                            {% if grandchild.birth_date %}
+                                                b. {{ grandchild.birth_date|date:"Y" }}
+                                            {% endif %}
+                                            {% if grandchild.death_date %}
+                                                - d. {{ grandchild.death_date|date:"Y" }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let scale = 1;
+    const treeContainer = document.getElementById('treeContainer');
+    const familyTree = document.getElementById('familyTree');
+    
+    function zoomIn() {
+        scale += 0.1;
+        familyTree.style.transform = `scale(${scale})`;
+    }
+    
+    function zoomOut() {
+        if (scale > 0.5) {
+            scale -= 0.1;
+            familyTree.style.transform = `scale(${scale})`;
+        }
+    }
+    
+    function resetZoom() {
+        scale = 1;
+        familyTree.style.transform = `scale(${scale})`;
+        treeContainer.scrollTo({
+            top: treeContainer.scrollHeight / 2 - treeContainer.clientHeight / 2,
+            left: treeContainer.scrollWidth / 2 - treeContainer.clientWidth / 2,
+            behavior: 'smooth'
+        });
+    }
+    
+    // Center the tree on load
+    window.addEventListener('load', function() {
+        resetZoom();
+        
+        // This ensures all connectors are properly positioned after the page is fully loaded
+        setTimeout(function() {
+            // Trigger a resize event to recalculate connector positions
+            window.dispatchEvent(new Event('resize'));
+        }, 300);
+    });
+</script>
+{% endblock %}
