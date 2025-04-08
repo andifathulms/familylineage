@@ -39,3 +39,8 @@ def add_parents(request: HttpRequest, person_id: int) -> HttpResponse:
         return redirect("persons:details", person_id=person.id)
 
     return render(request, 'forms.html', {'person': person, 'form': form})
+
+
+def family_tree(request: HttpRequest, person_id: int) -> HttpResponse:
+    person = Person.objects.get(pk=person_id)
+    return render(request, 'persons/family_tree.html', {'person': person})
