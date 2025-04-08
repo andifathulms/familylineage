@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db.models import F
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 
@@ -9,7 +10,19 @@ from .forms import AddParentForm
 
 
 def index(request: HttpRequest) -> HttpResponse:
-    persons = Person.objects.order_by('name')
+    sort_by = request.GET.get('sort', 'name_asc')
+    persons = Person.objects.all()
+
+    if sort_by == 'name_asc':
+        persons = persons.order_by('name')
+    elif sort_by == 'name_desc':
+        persons = persons.order_by('-name')
+    elif sort_by == 'age_asc':
+        persons = persons.order_by(F('birth_date').desc(nulls_last=True))  # Youngest first (nulls last)
+    elif sort_by == 'age_desc':
+        persons = persons.order_by(F('birth_date').asc(nulls_first=True))  # Oldest first (nulls first)
+    else:
+        persons = persons.order_by('name')  # Default sorting
 
     paginator = Paginator(persons, 10)
     page_number = request.GET.get('page')
@@ -20,6 +33,7 @@ def index(request: HttpRequest) -> HttpResponse:
         'persons': page_obj.object_list,
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages(),
+        'current_sort': sort_by,
     }
     return render(request, 'persons/index.html', context)
 
